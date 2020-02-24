@@ -33,14 +33,20 @@ io.on("connection", socket => {
   // user send message event
   socket.on("sendMessage", (message, callback) => {
     const user = getUser(socket.id);
-    console.log("here", user);
     io.to(user.room).emit("message", { user: user.name, text: message });
 
     callback();
   });
 
-  socket.on("disconnet", () => {
-    console.log("User disconnected...");
+  socket.on("disconnect", () => {
+    const user = removeUser(socket.id);
+    console.log("user to left", user);
+    if (user) {
+      io.to(user.room).emit("message", {
+        user: "admin",
+        text: `${user.name}, has left!`
+      });
+    }
   });
 });
 
