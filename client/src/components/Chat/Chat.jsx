@@ -4,6 +4,7 @@ import queryString from "query-string";
 
 import "./Chat.css";
 
+import TextContainer from "../TextContainer/TextContainer";
 import InfoBar from "../InfoBar/InfoBar";
 import Input from "../Input/Input";
 import Messages from "../Messages/Messages";
@@ -16,6 +17,7 @@ export default function Chat({ location }) {
   const [room, setRoom] = useState("");
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
+  const [users, setUsers] = useState([]);
 
   useEffect(() => {
     const { name, room } = queryString.parse(location.search);
@@ -36,6 +38,10 @@ export default function Chat({ location }) {
     socket.on("message", message => {
       setMessages([...messages, message]);
     });
+
+    socket.on("roomData", ({ users }) => {
+      setUsers(users);
+    });
   }, [messages]);
 
   //send Message function
@@ -45,8 +51,6 @@ export default function Chat({ location }) {
       socket.emit("sendMessage", message, () => setMessage(""));
     }
   };
-
-  console.log(message, messages);
 
   return (
     <div className="outerContainer">
@@ -59,6 +63,7 @@ export default function Chat({ location }) {
           sendMessage={sendMessage}
         />
       </div>
+      <TextContainer users={users} />
     </div>
   );
 }
