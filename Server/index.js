@@ -43,11 +43,19 @@ io.on("connection", socket => {
 
     callback();
   });
+  // user typing event
+  socket.on("typing", () => {
+    const user = getUser(socket.id);
+    io.to(user.room).emit("typingMessage", {
+      user: "",
+      text: `${user.name} typing...`
+    });
+  });
 
   //user disconnect
   socket.on("disconnect", () => {
     const user = removeUser(socket.id);
-    console.log("user to left", user);
+
     if (user) {
       io.to(user.room).emit("message", {
         user: "admin",

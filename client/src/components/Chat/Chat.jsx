@@ -17,6 +17,7 @@ export default function Chat({ location }) {
   const [room, setRoom] = useState("");
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
+  const [typingMsg, setTypingMessage] = useState([]);
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
@@ -39,6 +40,10 @@ export default function Chat({ location }) {
       setMessages([...messages, message]);
     });
 
+    socket.on("typingMessage", msg => {
+      setTypingMessage(msg);
+    });
+
     socket.on("roomData", ({ users }) => {
       setUsers(users);
     });
@@ -52,15 +57,21 @@ export default function Chat({ location }) {
     }
   };
 
+  const typing = e => {
+    socket.emit("typing");
+  };
+
   return (
     <div className="outerContainer">
       <div className="container">
-        <InfoBar room={room} />
+        <InfoBar room={room} name={name} />
         <Messages messages={messages} name={name} />
+        {typingMsg.text}
         <Input
           message={message}
           setMessage={setMessage}
           sendMessage={sendMessage}
+          typing={typing}
         />
       </div>
       <TextContainer users={users} />
